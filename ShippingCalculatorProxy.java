@@ -12,9 +12,15 @@ public class ShippingCalculatorProxy implements ShippingCalculator {
     }
 
     @Override
-    public double calculate(Order order) {
-        return flags.isEnabled("smart-shipping")
-                ? smart.calculate(order)
-                : legacy.calculate(order);
-    }
+public double calculate(Order order) {
+    boolean useSmart = flags.isEnabled("smart-shipping");
+    long start = System.nanoTime();
+
+    double result = useSmart ? smart.calculate(order) : legacy.calculate(order);
+
+    long ms = (System.nanoTime() - start) / 1_000_000;
+    System.out.println("[Proxy] respondió " + (useSmart ? "smart" : "legacy")
+            + " en " + ms + " ms");
+    return result;
+}
 }
